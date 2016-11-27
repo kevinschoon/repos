@@ -65,14 +65,15 @@ List repos with pending changes
 
 List repos with stashed changes
 
-  > repos -stashed
+    > repos -stashed
 
-  > fuu/my-repo
-  > bar/my-other-repo
+    > fuu/my-repo
+    > bar/my-other-repo
 
 
 ### TODO
 
 Better integration with Git
+
 ???
 
