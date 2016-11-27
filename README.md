@@ -1,6 +1,7 @@
 ## Repos
 
 The majority of work I do on a day to day basis happens inside of a directory called `repos` in my `$HOME`.
+
 The directory structure looks like this:
 
     ~/repos
@@ -11,13 +12,14 @@ The directory structure looks like this:
       ...
 
 
-Repos is a simple tool to show dirty repositories across different directories.
+Repos shows dirty repositories across different directories. Maybe it could do more in the future.
+
 Each top level directory is called a `Collection`.
 
 
 ### Installation
 
-  go get github.com/kevinschoon/repos
+    go get github.com/kevinschoon/repos
 
 
 ### Configuration
@@ -59,8 +61,8 @@ List repos with pending changes
 
     > fuu/my-repo
     > bar/my-other-repo
-
-    wc -l $(repos pending)
+    
+    repos -pending |wc -l
 
 
 List repos with stashed changes
