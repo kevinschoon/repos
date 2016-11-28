@@ -28,32 +28,12 @@ type Repo struct {
 // Pending returns all files in the repo with uncommitted
 // or unstaged files
 func (r Repo) Pending() []string {
-	pending := []string{}
-	raw, err := exec.Command("git", "-C", r.Path, "status", "--porcelain").Output()
-	if err != nil {
-		return pending
-	}
-	for _, line := range strings.SplitAfter(string(raw), "\n") {
-		if line != "" {
-			pending = append(pending, line)
-		}
-	}
-	return pending
+	return lines("git", "-C", r.Path, "status", "--porcelain")
 }
 
 // Stashed returns all files in the repo with stashed changes
 func (r Repo) Stashed() []string {
-	stashed := []string{}
-	raw, err := exec.Command("git", "-C", r.Path, "stash", "list", "--porcelain").Output()
-	if err != nil {
-		return stashed
-	}
-	for _, line := range strings.SplitAfter(string(raw), "\n") {
-		if line != "" {
-			stashed = append(stashed, line)
-		}
-	}
-	return stashed
+	return lines("git", "-C", r.Path, "stash", "list", "--porcelain")
 }
 
 // Collections are named groups of repositories
@@ -92,27 +72,31 @@ func NewConfig() (*Config, error) {
 	return config, nil
 }
 
-// Repos returns all repositories in a collection
-func repos(collection *Collection) ([]*Repo, error) {
-	matches, err := filepath.Glob(collection.Pattern)
+// lines collects lines of output from a command
+func lines(name string, args ...string) []string {
+	lines := []string{}
+	raw, err := exec.Command(name, args...).Output()
 	if err != nil {
-		return nil, err
+		return lines
 	}
-	repos := make([]*Repo, len(matches))
-	for i, match := range matches {
-		repos[i] = &Repo{
-			Path: match,
+	for _, line := range strings.SplitAfter(string(raw), "\n") {
+		if line != "" {
+			lines = append(lines, line)
 		}
 	}
-	return repos, nil
+	return lines
 }
 
+// Flat walks directories in each collection returning []Repo
 func flat(collections []*Collection) []*Repo {
 	flat := []*Repo{}
 	for _, collection := range collections {
-		repos, err := repos(collection)
+		matches, err := filepath.Glob(collection.Pattern)
 		failOnErr(err)
-		for _, repo := range repos {
+		for _, match := range matches {
+			repo := &Repo{
+				Path: match,
+			}
 			flat = append(flat, repo)
 		}
 	}
